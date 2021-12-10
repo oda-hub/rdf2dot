@@ -130,7 +130,12 @@ def rdf2dot(g, stream, opts=None, html_labels=True):
     def default_color(p, placement='arrow'):
         color = None
         
-        for k, v in yaml.load(open(os.path.join(os.getenv("HOME"), "coloring.yaml")), Loader=yaml.SafeLoader).items():
+
+        for fn in ["coloring.yaml", os.path.join(os.getenv("HOME"), "coloring.yaml")]:
+            if os.path.exists(fn):
+                break
+
+        for k, v in yaml.load(open(fn), Loader=yaml.SafeLoader).items():
             if re.match(k, p):        
                 color = v.get(placement, None)
                 

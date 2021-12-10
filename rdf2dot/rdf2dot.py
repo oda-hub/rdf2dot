@@ -88,6 +88,9 @@ def rdf2dot(g, stream, opts=None, html_labels=True):
     writes the dot output to the stream
     """
 
+    if os.getenv('RDF2DOT_HTML_LABELS', 'yes') == 'no':
+        html_labels = False
+
     if opts in [None, []]:
         opts = {}            
 
@@ -233,6 +236,7 @@ def rdf2dot(g, stream, opts=None, html_labels=True):
                         {pos_line}
 
                         label={re.sub('[^0-9a-zA-Z]', '', html.escape(label(u, g)).strip())}, 
+                        title="{html.escape(label(u, g)).strip()}", 
                         tooltip = "{u}"
                         ]""")
             )

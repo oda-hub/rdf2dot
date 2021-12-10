@@ -82,7 +82,7 @@ NODECOLOR = "black"
 ISACOLOR = "black"
 
 
-def rdf2dot(g, stream, opts=None):
+def rdf2dot(g, stream, opts=None, html_labels=True):
     """
     Convert the RDF graph to DOT
     writes the dot output to the stream
@@ -159,12 +159,20 @@ def rdf2dot(g, stream, opts=None):
 
         if isinstance(o, (rdflib.URIRef, rdflib.BNode)):
             on = node(o)
-            stream.write(
-                f"""
-                    \t{sn} -> {on} [ color={color(p, 'arrow')}, label=< <font point-size='15' 
-                                     color='#666666'>{qname(p ,g)}</font> > ] ;
-                """
-            )
+            if html_labels:
+                stream.write(
+                    f"""
+                        \t{sn} -> {on} [ color={color(p, 'arrow')}, label=< <font point-size='15' 
+                                        color='#666666'>{qname(p ,g)}</font> > ] ;
+                    """
+                )
+            else:
+                stream.write(
+                    f"""
+                        \t{sn} -> {on} [ color={color(p, 'arrow')}, label={re.sub('[^0-9a-zA-Z]', '', qname(p ,g))} ] ;
+                    """
+                )
+
         else:
             fields[sn].add((qname(p, g), formatliteral(o, g)))
 
@@ -187,28 +195,42 @@ def rdf2dot(g, stream, opts=None):
         if color(u, 'pos'):
             pos_line = 'pos = "' + color(u, 'pos') + '"'
 
-        stream.write(
-            re.sub("[\n ]+", " ", f"""{n} [ 
-                    shape=record
-                    fillcolor={color(u, 'bgcolor')}
-                    style=filled color={color(u, 'node_color')} 
-                    height=0.1 width=0.1 margin="0.1,0.1" 
-                    {pos_line}
+        if html_labels:
+            stream.write(
+                re.sub("[\n ]+", " ", f"""{n} [ 
+                        shape=record
+                        fillcolor={color(u, 'bgcolor')}
+                        style=filled color={color(u, 'node_color')} 
+                        height=0.1 width=0.1 margin="0.1,0.1" 
+                        {pos_line}
 
-                    label=<  
-                            <table border="0" cellpadding="2" cellspacing="1">
-                              <tr>
-                                <td colspan="2" href="{u}">
-                                  <font color='{color(u, 'node_label').strip()}'><B>
-                                    {html.escape(label(u, g)).strip()}
-                                  </B></font>
-                                </td>
-                              </tr>
-                            {''.join(f)}
-                            </table>
-                        >, tooltip = "{u}"
-                    ]""")
-        )        
+                        label=<  
+                                <table border="0" cellpadding="2" cellspacing="1">
+                                <tr>
+                                    <td colspan="2" href="{u}">
+                                    <font color='{color(u, 'node_label').strip()}'><B>
+                                        {html.escape(label(u, g)).strip()}
+                                    </B></font>
+                                    </td>
+                                </tr>
+                                {''.join(f)}
+                                </table>
+                            >, tooltip = "{u}"
+                        ]""")
+            )        
+        else:
+            stream.write(
+                re.sub("[\n ]+", " ", f"""{n} [ 
+                        shape=box
+                        fillcolor={color(u, 'bgcolor')}
+                        style=filled color={color(u, 'node_color')} 
+                        height=0.1 width=0.1 margin="0.1,0.1" 
+                        {pos_line}
+
+                        label={re.sub('[^0-9a-zA-Z]', '', html.escape(label(u, g)).strip())}, 
+                        tooltip = "{u}"
+                        ]""")
+            )
         #{''.join(f)}
 
     stream.write("}\n")

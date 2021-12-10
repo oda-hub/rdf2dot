@@ -8,6 +8,6 @@ if {'pytest', 'test', 'ptr'}.intersection(sys.argv):
 
 
 setup(description="rdf2dot",
-      version='0.1.0',
+      version='0.1.2',
       include_package_data=True,
       setup_requires=setup_requires)

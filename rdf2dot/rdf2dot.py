@@ -111,7 +111,8 @@ def rdf2dot(g, stream, opts=None, html_labels=True):
                 return l
 
         try:
-            return g.namespace_manager.compute_qname(x)[2]
+            #return g.namespace_manager.compute_qname(x)[2]
+            return x.split("#")[1]
         except:
             return x
 
@@ -185,7 +186,7 @@ def rdf2dot(g, stream, opts=None, html_labels=True):
             fields[sn].add((qname(p, g), formatliteral(o, g)))
 
     for u, n in nodes.items():
-        stream.write("# %s %s\n" % (u, n))
+        stream.write("# u: %s m: %s\n" % (u, n))
         f = [
            f"""<tr><td align='left'><font point-size="10">{x[0]}: </font></td><td align='left'><font point-size="10">{x[1]}</font></td></tr>"""
                 for x in sorted(fields[n])            
